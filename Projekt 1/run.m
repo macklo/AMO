@@ -20,7 +20,7 @@ longitude = deg2rad([
 	28.787526
 	]);
 
-times = [
+t = [
 	6.682150977843770e-02 
 	6.687348376892789e-02 
 	6.680893203665556e-02 
@@ -32,19 +32,20 @@ x = h * cos(latitude) .* cos(longitude);
 y = h * cos(latitude) .* sin(longitude);
 z = h * sin(latitude);
 
-fitfun = @(xp)(fun(xp, x, y, z, times));
+startingPoints = [
+	0 0 0;
+	r/2 r/2 r/2;
+	h h h;
+	1.e8*[1, 1, 1]
+	];
 
-x0 = [r, r, r];
+resultTable = zeros(size(startingPoints, 1), 4);
 
-options = optimoptions('lsqnonlin','Algorithm', 'levenberg-marquardt', ... 
-	'Display', 'iter-detailed');
+for i = 1:size(startingPoints, 1)
+	x0 = startingPoints(i, :)
 
-[result, resnorm, residual, exitflag, output] = lsqnonlin(fitfun ,x0, [], [], options);
+	options = optimoptions('lsqnonlin', 'Algorithm', 'levenberg-marquardt', ... 
+		'Display', 'final');
 
-xp = result(1);
-yp = result(2);	
-zp = result(3);
-
-xH         = sqrt(xp^2 + yp^2 + zp^2) - r
-xLatitude  = rad2deg(asin(zp / r)) 
-xLongitude = rad2deg(atan(yp / xp))
+	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude, longitude, t, x0, options)
+end
