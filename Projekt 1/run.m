@@ -33,10 +33,11 @@ y = h * cos(latitude) .* sin(longitude);
 z = h * sin(latitude);
 
 startingPoints = [
+	r r r;
 	0 0 0;
-	r/2 r/2 r/2;
-	h h h;
+	1.e7*[1, 1, 1]
 	1.e8*[1, 1, 1]
+	1.e9*[1, 1, 1]
 	];
 
 resultTable = zeros(size(startingPoints, 1), 4);
@@ -48,4 +49,104 @@ for i = 1:size(startingPoints, 1)
 		'Display', 'final');
 
 	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude, longitude, t, x0, options)
+end
+
+maxIterations = [
+	400;
+	4;
+	3;
+	2;
+	1;
+	];
+
+resultTable = zeros(size(maxIterations, 1), 4);
+
+for i = 1:size(maxIterations, 1)
+	x0 = [r r r];
+
+	options = optimoptions('lsqnonlin', 'Algorithm', 'levenberg-marquardt', ... 
+		'MaxIterations', maxIterations(i));
+
+	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude, longitude, t, x0, options)
+end
+
+maxEval = [
+	400;
+	20;
+	17;
+	10;
+	5;
+	];
+
+resultTable = zeros(size(maxEval, 1), 4);
+
+for i = 1:size(maxEval, 1)
+	x0 = [r r r];
+
+	options = optimoptions('lsqnonlin', 'Algorithm', 'levenberg-marquardt', ... 
+		'MaxFunctionEvaluations', maxEval(i));
+
+	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude, longitude, t, x0, options)
+end
+
+stepTolerance = [
+	1e-6;
+	1e-5;
+	1e-4;
+	1e-2;
+	1e-1;
+	1
+	];
+
+resultTable = zeros(size(stepTolerance, 1), 4);
+
+for i = 1:size(stepTolerance, 1)
+	x0 = [r r r];
+
+	options = optimoptions('lsqnonlin', 'Algorithm', 'levenberg-marquardt', ... 
+		'StepTolerance', stepTolerance(i));
+
+	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude, longitude, t, x0, options)
+end
+
+fcnTolerance = [
+	1e-6;
+	1e-5;
+	1e-4;
+	1e-2;
+	1e-1;
+	1
+	];
+
+resultTable = zeros(size(fcnTolerance, 1), 4);
+
+for i = 1:size(fcnTolerance, 1)
+	x0 = [r r r];
+
+	options = optimoptions('lsqnonlin', 'Algorithm', 'levenberg-marquardt', ... 
+		'StepTolerance', fcnTolerance(i));
+
+	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude, longitude, t, x0, options)
+end
+
+dataDisturbance = [
+	1e-12;
+	1e-10;
+	1e-8;
+	1e-6;
+	1e-4;
+	1e-2;
+	1e-1;
+	];
+
+resultTable = zeros(size(dataDisturbance, 1), 4);
+
+for i = 1:size(dataDisturbance, 1)
+	
+	x0 = [r r r];
+
+	options = optimoptions('lsqnonlin', 'Algorithm', 'levenberg-marquardt', ... 
+		'StepTolerance', dataDisturbance(i));
+
+	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude + rand(size(latitude))*dataDisturbance(i), longitude + rand(size(longitude))*dataDisturbance(i), t + rand(size(t))*dataDisturbance(i), x0, options)
 end
