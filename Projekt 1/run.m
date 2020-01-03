@@ -32,6 +32,7 @@ x = h * cos(latitude) .* cos(longitude);
 y = h * cos(latitude) .* sin(longitude);
 z = h * sin(latitude);
 
+%% Punkty startowe
 startingPoints = [
 	r r r;
 	0 0 0;
@@ -46,11 +47,12 @@ for i = 1:size(startingPoints, 1)
 	x0 = startingPoints(i, :)
 
 	options = optimoptions('lsqnonlin', 'Algorithm', 'levenberg-marquardt', ... 
-		'Display', 'final');
+		'SpecifyObjectiveGradient', true, 'Display', 'final');
 
 	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude, longitude, t, x0, options)
 end
 
+%% Maksymalna liczba iteracji
 maxIterations = [
 	400;
 	4;
@@ -59,17 +61,19 @@ maxIterations = [
 	1;
 	];
 
+
 resultTable = zeros(size(maxIterations, 1), 4);
 
 for i = 1:size(maxIterations, 1)
 	x0 = [r r r];
 
 	options = optimoptions('lsqnonlin', 'Algorithm', 'levenberg-marquardt', ... 
-		'MaxIterations', maxIterations(i));
+		'SpecifyObjectiveGradient',true, 'MaxIterations', maxIterations(i));
 
 	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude, longitude, t, x0, options)
 end
 
+%% Maksymalna liczba obliczeñ funkcji celu
 maxEval = [
 	400;
 	20;
@@ -84,11 +88,12 @@ for i = 1:size(maxEval, 1)
 	x0 = [r r r];
 
 	options = optimoptions('lsqnonlin', 'Algorithm', 'levenberg-marquardt', ... 
-		'MaxFunctionEvaluations', maxEval(i));
+		'SpecifyObjectiveGradient',true, 'MaxFunctionEvaluations', maxEval(i));
 
 	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude, longitude, t, x0, options)
 end
 
+%% Minimalna d³ugoœæ kroku
 stepTolerance = [
 	1e-6;
 	1e-5;
@@ -104,11 +109,12 @@ for i = 1:size(stepTolerance, 1)
 	x0 = [r r r];
 
 	options = optimoptions('lsqnonlin', 'Algorithm', 'levenberg-marquardt', ... 
-		'StepTolerance', stepTolerance(i));
+		'SpecifyObjectiveGradient',true, 'StepTolerance', stepTolerance(i));
 
 	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude, longitude, t, x0, options)
 end
 
+%% Minimalna zmiana wartoœci funkcji celu
 fcnTolerance = [
 	1e-6;
 	1e-5;
@@ -124,11 +130,12 @@ for i = 1:size(fcnTolerance, 1)
 	x0 = [r r r];
 
 	options = optimoptions('lsqnonlin', 'Algorithm', 'levenberg-marquardt', ... 
-		'StepTolerance', fcnTolerance(i));
+		'SpecifyObjectiveGradient',true, 'StepTolerance', fcnTolerance(i));
 
 	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude, longitude, t, x0, options)
 end
 
+%% Zaburzenie w danych
 dataDisturbance = [
 	1e-12;
 	1e-10;
@@ -146,7 +153,7 @@ for i = 1:size(dataDisturbance, 1)
 	x0 = [r r r];
 
 	options = optimoptions('lsqnonlin', 'Algorithm', 'levenberg-marquardt', ... 
-		'StepTolerance', dataDisturbance(i));
+		'SpecifyObjectiveGradient',true, 'StepTolerance', dataDisturbance(i));
 
 	[resultTable(i, 1:3), resultTable(i, 4)] = getResult(latitude + rand(size(latitude))*dataDisturbance(i), longitude + rand(size(longitude))*dataDisturbance(i), t + rand(size(t))*dataDisturbance(i), x0, options)
 end
